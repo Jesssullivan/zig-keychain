@@ -10,14 +10,16 @@ const c = @cImport({
     @cInclude("libsecret/secret.h");
 });
 
-const schema = c.SecretSchema{
-    .name = "com.cmuxterm.secrets",
-    .flags = c.SECRET_SCHEMA_NONE,
-    .attributes = .{
-        .{ .name = "service", .type = c.SECRET_SCHEMA_ATTRIBUTE_STRING },
-        .{ .name = "account", .type = c.SECRET_SCHEMA_ATTRIBUTE_STRING },
-        .{ .name = null, .type = 0 },
-    },
+const schema = blk: {
+    var s: c.SecretSchema = .{
+        .name = "com.cmuxterm.secrets",
+        .flags = c.SECRET_SCHEMA_NONE,
+        .attributes = std.mem.zeroes(@TypeOf(s.attributes)),
+    };
+    s.attributes[0] = .{ .name = "service", .type = c.SECRET_SCHEMA_ATTRIBUTE_STRING };
+    s.attributes[1] = .{ .name = "account", .type = c.SECRET_SCHEMA_ATTRIBUTE_STRING };
+    // attributes[2+] are zero-initialized (null terminator)
+    break :blk s;
 };
 
 pub fn store(service: []const u8, account: []const u8, data: []const u8) !void {
