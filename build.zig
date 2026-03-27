@@ -13,6 +13,7 @@ pub fn build(b: *std.Build) void {
     // On Linux, add system include paths for libsecret/glib
     const resolved_target = root_module.resolved_target.?;
     if (resolved_target.result.os.tag == .linux) {
+        root_module.link_libc = true;
         root_module.addSystemIncludePath(.{ .cwd_relative = "/usr/include/libsecret-1" });
         root_module.addSystemIncludePath(.{ .cwd_relative = "/usr/include/glib-2.0" });
         root_module.addSystemIncludePath(.{ .cwd_relative = "/usr/lib/x86_64-linux-gnu/glib-2.0/include" });
