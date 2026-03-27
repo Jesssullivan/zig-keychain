@@ -1,4 +1,5 @@
 const std = @import("std");
+const builtin = @import("builtin");
 const keychain = @import("keychain.zig");
 
 // Linux: libsecret via D-Bus (Secret Service API)
@@ -6,9 +7,9 @@ const keychain = @import("keychain.zig");
 // On Rocky Linux: dnf install libsecret-devel
 // On Ubuntu: apt install libsecret-1-dev
 
-const c = @cImport({
+const c = if (builtin.os.tag == .linux) @cImport({
     @cInclude("libsecret/secret.h");
-});
+}) else struct {};
 
 const schema = blk: {
     var s: c.SecretSchema = std.mem.zeroes(c.SecretSchema);

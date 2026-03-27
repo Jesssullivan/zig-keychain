@@ -1,11 +1,12 @@
 const std = @import("std");
+const builtin = @import("builtin");
 const keychain = @import("keychain.zig");
 
-// Security.framework C bindings
-const c = @cImport({
+// Security.framework C bindings (only resolved on macOS)
+const c = if (builtin.os.tag == .macos) @cImport({
     @cInclude("Security/Security.h");
     @cInclude("CoreFoundation/CoreFoundation.h");
-});
+}) else struct {};
 
 /// Store a generic password via SecItemAdd.
 pub fn store(service: []const u8, account: []const u8, data: []const u8) !void {
