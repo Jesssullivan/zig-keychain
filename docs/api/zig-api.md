@@ -1,82 +1,61 @@
-# Zig API Reference: zig-keychain
+# Zig API Reference
 
-## `keychain.zig`
-*Platform keychain abstraction*
+Auto-generated from Zig source files in [`src/`](https://github.com/Jesssullivan/zig-keychain/tree/main/src).
 
-### Types
+These are the internal Zig modules. For C/Swift interop, see the [C FFI Reference](c-ffi.md).
 
-#### `Result` (union)
+### `keychain.zig`
+
 Platform-independent keychain result.
+```zig
+pub const Result = union(enum) {
+```
 
-### Functions
-
-#### `store`
 Store a generic secret in the platform keychain.
-
 ```zig
-pub fn store(service: []const u8, account: []const u8, data: []const u8) !void
+pub fn store(service: []const u8, account: []const u8, data: []const u8) !void {
 ```
 
-#### `lookup`
 Look up a generic secret from the platform keychain.
-
 ```zig
-pub fn lookup(service: []const u8, account: []const u8) !Result
+pub fn lookup(service: []const u8, account: []const u8) !Result {
 ```
 
-#### `delete`
 Delete a generic secret from the platform keychain.
-
 ```zig
-pub fn delete(service: []const u8, account: []const u8) !void
+pub fn delete(service: []const u8, account: []const u8) !void {
 ```
 
-## `keychain_linux.zig`
-*Linux libsecret backend*
 
-### Functions
-
-#### `store`
+### `keychain_linux.zig`
 
 ```zig
-pub fn store(service: []const u8, account: []const u8, data: []const u8) !void
+pub fn store(service: []const u8, account: []const u8, data: []const u8) !void {
 ```
-
-#### `lookup`
 
 ```zig
-pub fn lookup(service: []const u8, account: []const u8) !keychain.Result
+pub fn lookup(service: []const u8, account: []const u8) !keychain.Result {
 ```
-
-#### `delete`
 
 ```zig
-pub fn delete(service: []const u8, account: []const u8) !void
+pub fn delete(service: []const u8, account: []const u8) !void {
 ```
 
-## `keychain_macos.zig`
-*macOS Security.framework backend*
 
-### Functions
+### `keychain_macos.zig`
 
-#### `store`
 Store a generic password via SecItemAdd.
-
 ```zig
-pub fn store(service: []const u8, account: []const u8, data: []const u8) !void
+pub fn store(service: []const u8, account: []const u8, data: []const u8) !void {
 ```
 
-#### `lookup`
 Look up a generic password via SecItemCopyMatching.
-
 ```zig
-pub fn lookup(service: []const u8, account: []const u8) !keychain.Result
+pub fn lookup(service: []const u8, account: []const u8) !keychain.Result {
 ```
 
-#### `delete`
 Delete a generic password via SecItemDelete.
-
 ```zig
-pub fn delete(service: []const u8, account: []const u8) !void
+pub fn delete(service: []const u8, account: []const u8) !void {
 ```
 
