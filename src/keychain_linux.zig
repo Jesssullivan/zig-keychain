@@ -11,11 +11,9 @@ const c = @cImport({
 });
 
 const schema = blk: {
-    var s: c.SecretSchema = .{
-        .name = "com.cmuxterm.secrets",
-        .flags = c.SECRET_SCHEMA_NONE,
-        .attributes = std.mem.zeroes(@TypeOf(s.attributes)),
-    };
+    var s: c.SecretSchema = std.mem.zeroes(c.SecretSchema);
+    s.name = "com.cmuxterm.secrets";
+    s.flags = c.SECRET_SCHEMA_NONE;
     s.attributes[0] = .{ .name = "service", .type = c.SECRET_SCHEMA_ATTRIBUTE_STRING };
     s.attributes[1] = .{ .name = "account", .type = c.SECRET_SCHEMA_ATTRIBUTE_STRING };
     // attributes[2+] are zero-initialized (null terminator)
