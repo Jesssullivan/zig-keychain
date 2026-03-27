@@ -10,17 +10,25 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
 
-    // On Linux, add system include paths for libsecret/glib
     const resolved_target = root_module.resolved_target.?;
+
+    // Linux: compile C bridge for libsecret varargs + add include paths
     if (resolved_target.result.os.tag == .linux) {
         root_module.link_libc = true;
+        root_module.addCSourceFile(.{
+            .file = b.path("src/libsecret_bridge.c"),
+            .flags = &.{ "-std=c99", "-Wall" },
+        });
+        // System include paths for libsecret + glib
         root_module.addSystemIncludePath(.{ .cwd_relative = "/usr/include/libsecret-1" });
         root_module.addSystemIncludePath(.{ .cwd_relative = "/usr/include/glib-2.0" });
         root_module.addSystemIncludePath(.{ .cwd_relative = "/usr/lib/x86_64-linux-gnu/glib-2.0/include" });
         root_module.addSystemIncludePath(.{ .cwd_relative = "/usr/lib/aarch64-linux-gnu/glib-2.0/include" });
+        // Bridge header for zig @cImport
+        root_module.addIncludePath(b.path("src"));
     }
 
-    // On macOS, link Security and CoreFoundation frameworks
+    // macOS: link Security + CoreFoundation frameworks
     if (resolved_target.result.os.tag == .macos) {
         root_module.linkFramework("Security", .{});
         root_module.linkFramework("CoreFoundation", .{});
