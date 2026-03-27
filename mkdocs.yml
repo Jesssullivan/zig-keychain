@@ -78,5 +78,6 @@ nav:
   - Guides:
       - Integration: guides/integration.md
       - Building: guides/building.md
+  - Source Tree: source-tree.md
   - llms.txt: llms.txt
   - AGENTS.md: agents.md

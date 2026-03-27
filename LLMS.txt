@@ -24,16 +24,19 @@
 - `store`: Store a generic secret in the platform keychain.
 - `lookup`: Look up a generic secret from the platform keychain.
 - `delete`: Delete a generic secret from the platform keychain.
+- `search`: Search for keychain items matching an account name. Writes matching service names as null-separated strings into `out_buf`. Returns the number of matches found.
 
 ### keychain_linux.zig
 - `store`
 - `lookup`
 - `delete`
+- `search`: Search for keychain items matching an account name. Writes matching service names as null-separated strings into `out_buf`. Returns the number of matches found, or an error.
 
 ### keychain_macos.zig
 - `store`: Store a generic password via SecItemAdd.
 - `lookup`: Look up a generic password via SecItemCopyMatching.
 - `delete`: Delete a generic password via SecItemDelete.
+- `search`: Search for keychain items matching an account name. Writes matching service names as null-separated strings into `out_buf`. Returns the number of matches found, or an error.
 
 ## Build
 

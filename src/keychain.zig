@@ -40,3 +40,16 @@ pub fn delete(service: []const u8, account: []const u8) !void {
         return error.UnsupportedPlatform;
     }
 }
+
+/// Search for keychain items matching an account name.
+/// Writes matching service names as null-separated strings into `out_buf`.
+/// Returns the number of matches found.
+pub fn search(account: []const u8, out_buf: [*]u8, out_capacity: usize) !usize {
+    if (builtin.os.tag == .macos) {
+        return @import("keychain_macos.zig").search(account, out_buf, out_capacity);
+    } else if (builtin.os.tag == .linux) {
+        return @import("keychain_linux.zig").search(account, out_buf, out_capacity);
+    } else {
+        return error.UnsupportedPlatform;
+    }
+}

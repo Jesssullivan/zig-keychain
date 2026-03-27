@@ -26,6 +26,13 @@ Delete a generic secret from the platform keychain.
 pub fn delete(service: []const u8, account: []const u8) !void {
 ```
 
+Search for keychain items matching an account name.
+Writes matching service names as null-separated strings into `out_buf`.
+Returns the number of matches found.
+```zig
+pub fn search(account: []const u8, out_buf: [*]u8, out_capacity: usize) !usize {
+```
+
 
 ### `keychain_linux.zig`
 
@@ -39,6 +46,13 @@ pub fn lookup(service: []const u8, account: []const u8) !keychain.Result {
 
 ```zig
 pub fn delete(service: []const u8, account: []const u8) !void {
+```
+
+Search for keychain items matching an account name.
+Writes matching service names as null-separated strings into `out_buf`.
+Returns the number of matches found, or an error.
+```zig
+pub fn search(account: []const u8, out_buf: [*]u8, out_capacity: usize) !usize {
 ```
 
 
@@ -57,5 +71,12 @@ pub fn lookup(service: []const u8, account: []const u8) !keychain.Result {
 Delete a generic password via SecItemDelete.
 ```zig
 pub fn delete(service: []const u8, account: []const u8) !void {
+```
+
+Search for keychain items matching an account name.
+Writes matching service names as null-separated strings into `out_buf`.
+Returns the number of matches found, or an error.
+```zig
+pub fn search(account: []const u8, out_buf: [*]u8, out_capacity: usize) !usize {
 ```
 

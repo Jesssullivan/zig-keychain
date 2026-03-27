@@ -8,8 +8,8 @@ zig-keychain/
 │       └── docs.yml
 ├── docs/
 │   ├── api/
-│   │   ├── c-ffi.md  (C FFI API Reference: zig-keychain)
-│   │   └── zig-api.md  (Zig API Reference: zig-keychain)
+│   │   ├── c-ffi.md  (C FFI Reference)
+│   │   └── zig-api.md  (Zig API Reference)
 │   ├── guides/
 │   │   ├── building.md  (Building)
 │   │   └── integration.md  (Integration Guide)
@@ -27,11 +27,10 @@ zig-keychain/
 │   ├── keychain.zig  (Platform keychain abstraction)
 │   ├── keychain_linux.zig  (Linux libsecret backend)
 │   └── keychain_macos.zig  (macOS Security.framework backend)
-├── tests/
 ├── .coderabbit.yaml
 ├── .envrc
 ├── .gitignore
-├── AGENTS.md  (AGENTS.md -- zig-keychain)
+├── AGENTS.md  (zig-keychain -- Agent Interface)
 ├── LICENSE  (License)
 ├── LLMS.txt
 ├── README.md  (zig-keychain)

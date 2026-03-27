@@ -108,3 +108,60 @@ pub fn delete(service: []const u8, account: []const u8) !void {
         return error.LibsecretDeleteFailed;
     }
 }
+
+/// Search for keychain items matching an account name.
+/// Writes matching service names as null-separated strings into `out_buf`.
+/// Returns the number of matches found, or an error.
+pub fn search(account: []const u8, out_buf: [*]u8, out_capacity: usize) !usize {
+    var acc_buf: [256]u8 = undefined;
+    if (account.len >= acc_buf.len) return error.NameTooLong;
+    @memcpy(acc_buf[0..account.len], account);
+    acc_buf[account.len] = 0;
+
+    // Build a GHashTable of attributes for the search
+    const attrs = c.g_hash_table_new(c.g_str_hash, c.g_str_equal) orelse return error.LibsecretSearchFailed;
+    defer c.g_hash_table_destroy(attrs);
+    _ = c.g_hash_table_insert(attrs, @constCast(@ptrCast("account")), @ptrCast(&acc_buf));
+
+    var err: ?*c.GError = null;
+    const items = c.secret_service_search_sync(
+        null, // default service
+        &schema,
+        attrs,
+        c.SECRET_SEARCH_ALL,
+        null, // cancellable
+        &err,
+    );
+    if (err) |e| {
+        c.g_error_free(e);
+        return error.LibsecretSearchFailed;
+    }
+    if (items == null) return 0;
+    defer c.g_list_free_full(items, c.g_object_unref);
+
+    var written: usize = 0;
+    var matches: usize = 0;
+    var node: ?*c.GList = items;
+
+    while (node) |n| {
+        const item: *c.SecretItem = @ptrCast(@alignCast(n.data));
+        const item_attrs = c.secret_item_get_attributes(item);
+        if (item_attrs) |ht| {
+            defer c.g_hash_table_unref(ht);
+            const svc_val: ?*c.gchar = @ptrCast(c.g_hash_table_lookup(ht, @constCast(@ptrCast("service"))));
+            if (svc_val) |svc| {
+                const svc_len = c.strlen(svc);
+                if (written + svc_len + 1 <= out_capacity) {
+                    @memcpy(out_buf[written .. written + svc_len], @as([*]const u8, @ptrCast(svc))[0..svc_len]);
+                    written += svc_len;
+                    out_buf[written] = 0;
+                    written += 1;
+                    matches += 1;
+                }
+            }
+        }
+        node = n.next;
+    }
+
+    return matches;
+}

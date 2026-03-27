@@ -52,3 +52,17 @@ export fn zig_keychain_delete(
     ) catch return -1;
     return 0;
 }
+
+export fn zig_keychain_search(
+    account: [*]const u8,
+    account_len: usize,
+    out: [*]u8,
+    out_capacity: usize,
+) c_int {
+    const count = keychain.search(
+        account[0..account_len],
+        out,
+        out_capacity,
+    ) catch return -1;
+    return @intCast(count);
+}
