@@ -12,18 +12,17 @@ pub fn build(b: *std.Build) void {
 
     const resolved_target = root_module.resolved_target.?;
 
-    // Linux: compile C bridge for libsecret varargs + add include paths
+    // Linux: compile C bridge for libsecret varargs + link system libs
     if (resolved_target.result.os.tag == .linux) {
         root_module.link_libc = true;
         root_module.addCSourceFile(.{
             .file = b.path("src/libsecret_bridge.c"),
             .flags = &.{ "-std=c99", "-Wall" },
         });
-        // System include paths for libsecret + glib
-        root_module.addSystemIncludePath(.{ .cwd_relative = "/usr/include/libsecret-1" });
-        root_module.addSystemIncludePath(.{ .cwd_relative = "/usr/include/glib-2.0" });
-        root_module.addSystemIncludePath(.{ .cwd_relative = "/usr/lib/x86_64-linux-gnu/glib-2.0/include" });
-        root_module.addSystemIncludePath(.{ .cwd_relative = "/usr/lib/aarch64-linux-gnu/glib-2.0/include" });
+        // Use pkg-config to find libsecret and glib headers/libs
+        // (works on Debian, Fedora, Arch, NixOS, etc.)
+        root_module.linkSystemLibrary("libsecret-1", .{});
+        root_module.linkSystemLibrary("glib-2.0", .{});
         // Bridge header for zig @cImport
         root_module.addIncludePath(b.path("src"));
     }
