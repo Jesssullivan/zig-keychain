@@ -51,13 +51,15 @@ pub fn build(b: *std.Build) void {
 
     // Documentation generation
     const docs_step = b.step("docs", "Generate API documentation");
+    const docs_mod = b.createModule(.{
+        .root_source_file = b.path("src/ffi.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+    docs_mod.link_libc = true;
     const docs_lib = b.addLibrary(.{
         .name = "zig-keychain",
-        .root_module = b.createModule(.{
-            .root_source_file = b.path("src/ffi.zig"),
-            .target = target,
-            .optimize = optimize,
-        }),
+        .root_module = docs_mod,
         .linkage = .static,
     });
     const install_docs = b.addInstallDirectory(.{
