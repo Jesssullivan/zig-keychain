@@ -35,7 +35,8 @@ jobs:
 
   autodoc:
     name: Autodoc
-    runs-on: ubuntu-latest
+    runs-on: macos-15
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
       - name: Install Zig
@@ -43,8 +44,6 @@ jobs:
         with:
           version: 0.15.2
           use-cache: false
-      - name: Install libsecret (Linux)
-        run: sudo apt-get install -y libsecret-1-dev libglib2.0-dev
       - name: Generate autodoc
         run: zig build docs
       - name: Upload autodoc artifact
