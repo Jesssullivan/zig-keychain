@@ -1,0 +1,27 @@
+# zig-keychain
+
+> Cross-platform keychain/secrets abstraction in Zig with C FFI -- macOS Keychain (SecItem) and Linux Secret Service (libsecret).
+
+Part of the [Tinyland Zig Libraries](https://libs.tinyland.dev). License: Zlib OR MIT.
+
+## Docs
+
+- [README](https://github.com/Jesssullivan/zig-keychain/blob/main/README.md): Overview, architecture, platform support, C and Zig API reference
+- [CONTRIBUTING](https://github.com/Jesssullivan/zig-keychain/blob/main/CONTRIBUTING.md): Installation, development setup, code style
+- [AGENTS](https://github.com/Jesssullivan/zig-keychain/blob/main/AGENTS.md): Agent-oriented project summary
+- [C Header](https://github.com/Jesssullivan/zig-keychain/blob/main/include/zig_keychain.h): Full C API declarations
+- [Full API Reference](https://raw.githubusercontent.com/Jesssullivan/zig-keychain/main/llms-full.txt): Complete function-level reference for LLMs
+
+## API Overview
+
+4 C FFI functions in `zig_keychain.h`:
+
+- `zig_keychain_store` -- store a secret (upsert semantics)
+- `zig_keychain_lookup` -- retrieve a secret by service+account
+- `zig_keychain_delete` -- remove a secret by service+account
+- `zig_keychain_search` -- find items matching an account name
+
+## Platforms
+
+- macOS: Security.framework (SecItem)
+- Linux: libsecret (D-Bus Secret Service)

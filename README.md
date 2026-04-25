@@ -18,10 +18,38 @@ Applications need to store credentials, tokens, and other secrets securely. Plat
 - **macOS**: Security.framework (kSecClassGenericPassword)
 - **Linux**: libsecret (org.freedesktop.secrets / D-Bus Secret Service)
 
+## Installation
+
+### Zig Package Manager (recommended)
+
+```bash
+zig fetch --save git+https://github.com/Jesssullivan/zig-keychain.git
+```
+
+Then in your `build.zig`:
+
+```zig
+const dep = b.dependency("zig-keychain", .{ .target = target, .optimize = optimize });
+exe.root_module.addImport("zig-keychain", dep.module("zig-keychain"));
+```
+
+### Git Submodule (C FFI consumers)
+
+```bash
+git submodule add https://github.com/Jesssullivan/zig-keychain.git vendor/keychain
+cd vendor/keychain && zig build -Doptimize=ReleaseFast
+```
+
+Link (macOS): `-lzig-keychain -framework Security -framework CoreFoundation`
+
+Link (Linux): `-lzig-keychain $(pkg-config --libs libsecret-1 glib-2.0)`
+
+Include `#include "zig_keychain.h"`.
+
 ## Requirements
 
-- Zig 0.15.2+
-- macOS 13+ (Security.framework) or Linux (libsecret-1)
+- Zig 0.14.1+
+- macOS 13+ (Security.framework) or Linux (libsecret-1-dev)
 
 ## Architecture
 

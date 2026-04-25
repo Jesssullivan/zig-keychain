@@ -1,5 +1,10 @@
 const keychain = @import("keychain.zig");
 
+/// Store a generic secret in the system keychain (macOS SecItem) or secret
+/// store (Linux libsecret). Uses upsert semantics: an existing item with the
+/// same service+account pair is replaced.
+///
+/// Returns 0 on success, -1 on failure.
 export fn zig_keychain_store(
     service: [*]const u8,
     service_len: usize,
@@ -16,6 +21,12 @@ export fn zig_keychain_store(
     return 0;
 }
 
+/// Look up a generic secret from the system keychain/secret store by
+/// service name and account name. Copies the secret data into the
+/// caller-provided output buffer.
+///
+/// Returns the number of bytes written on success, -1 if the item was
+/// not found, or -2 on error (including buffer too small).
 export fn zig_keychain_lookup(
     service: [*]const u8,
     service_len: usize,
@@ -40,6 +51,11 @@ export fn zig_keychain_lookup(
     }
 }
 
+/// Delete a generic secret from the system keychain/secret store,
+/// matched by service name and account name.
+///
+/// Returns 0 on success (including when the item does not exist),
+/// -1 on error.
 export fn zig_keychain_delete(
     service: [*]const u8,
     service_len: usize,
@@ -53,6 +69,11 @@ export fn zig_keychain_delete(
     return 0;
 }
 
+/// Search for keychain items whose account name matches the given value.
+/// Writes matching service names as null-separated strings into the
+/// caller-provided output buffer.
+///
+/// Returns the number of matches found, or -1 on error.
 export fn zig_keychain_search(
     account: [*]const u8,
     account_len: usize,
