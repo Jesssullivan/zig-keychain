@@ -1,0 +1,38 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Create release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Zig
+        uses: mlugg/setup-zig@v2
+        with:
+          version: 0.15.2
+          use-cache: false
+      - name: Install libsecret (Linux)
+        run: sudo apt-get install -y libsecret-1-dev libglib2.0-dev
+      - name: Build release
+        run: zig build -Doptimize=ReleaseFast
+      - name: Run tests
+        run: zig build test
+      - name: Generate autodoc
+        run: zig build docs
+      - name: Create source tarball
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/}
+          git archive --format=tar.gz --prefix=zig-keychain-${VERSION}/ HEAD > zig-keychain-${VERSION}.tar.gz
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            zig-keychain-*.tar.gz
