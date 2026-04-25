@@ -1,0 +1,15 @@
+.{
+    .name = .zig_keychain,
+    .version = "0.1.0",
+    .fingerprint = 0xfe3fa9814cfc513,
+    .minimum_zig_version = "0.14.1",
+    .dependencies = .{},
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "src",
+        "include",
+        "LICENSE",
+        "README.md",
+    },
+}
