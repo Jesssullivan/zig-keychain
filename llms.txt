@@ -2,11 +2,13 @@
 
 > Cross-platform keychain/secrets abstraction in Zig with C FFI -- macOS Keychain (SecItem) and Linux Secret Service (libsecret).
 
-Part of the [Tinyland Zig Libraries](https://libs.tinyland.dev). License: Zlib OR MIT.
+Published docs: https://transscendsurvival.org/zig-keychain/. License: Zlib OR MIT.
 
 ## Docs
 
 - [README](https://github.com/Jesssullivan/zig-keychain/blob/main/README.md): Overview, architecture, platform support, C and Zig API reference
+- [Documentation](https://transscendsurvival.org/zig-keychain/): MkDocs site
+- [Apple interop](https://transscendsurvival.org/zig-keychain/guides/apple-interop/): Swift/ObjC parity and gaps
 - [CONTRIBUTING](https://github.com/Jesssullivan/zig-keychain/blob/main/CONTRIBUTING.md): Installation, development setup, code style
 - [AGENTS](https://github.com/Jesssullivan/zig-keychain/blob/main/AGENTS.md): Agent-oriented project summary
 - [C Header](https://github.com/Jesssullivan/zig-keychain/blob/main/include/zig_keychain.h): Full C API declarations
@@ -25,3 +27,12 @@ Part of the [Tinyland Zig Libraries](https://libs.tinyland.dev). License: Zlib O
 
 - macOS: Security.framework (SecItem)
 - Linux: libsecret (D-Bus Secret Service)
+
+## Apple Interop Scope
+
+zig-keychain replaces a narrow generic-password keychain call site, not
+SwiftUI, AppKit, UIKit, Cocoa, iCloud Keychain, Secure Enclave,
+LocalAuthentication, access groups, synchronizable items, certificates,
+or private-key identity APIs. Current Swift/ObjC gaps include
+SwiftPM/modulemap packaging, ObjC examples, nullability annotations,
+Swift wrappers, and migration examples.

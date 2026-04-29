@@ -11,13 +11,12 @@
 zig build -Doptimize=ReleaseFast
 ```
 
-Produces `zig-out/lib/libzig_keychain.a` with the C header at `include/zig_keychain.h`.
+Produces `zig-out/lib/libzig-keychain.a` with the C header at `include/zig_keychain.h`.
 
 ## With Nix
 
 ```bash
-nix develop        # dev shell
-nix build          # build package
+nix develop        # dev shell with Zig 0.15.2
 ```
 
 ## Running Tests
@@ -42,3 +41,5 @@ sudo apt install libsecret-1-dev
 # Fedora
 sudo dnf install libsecret-devel
 ```
+
+Linux runtime delivery also requires a Secret Service provider and D-Bus session, such as GNOME Keyring or KWallet through a compatible service.

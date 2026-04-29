@@ -1,0 +1,77 @@
+name: Bug report
+description: Report incorrect behavior in zig-keychain.
+title: "bug: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not include secrets, tokens, credentials, private logs, or keychain payloads with sensitive content.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What is wrong?
+    validations:
+      required: true
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Surface
+      options:
+        - C ABI
+        - Zig package API
+        - macOS Security.framework backend
+        - Linux libsecret backend
+        - Build/package metadata
+        - Documentation
+        - Example
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: zig-version
+    attributes:
+      label: Zig version
+      placeholder: "0.15.2"
+    validations:
+      required: true
+  - type: input
+    id: platform
+    attributes:
+      label: Platform
+      placeholder: "macOS arm64, Linux x86_64, etc."
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction steps
+      description: Include the smallest code or command sequence that reproduces the problem.
+      placeholder: |
+        1. Run `zig build test`
+        2. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: validation
+    attributes:
+      label: Validation already run
+      description: Paste relevant command output, trimmed to the useful lines.
+      placeholder: |
+        zig build test
+        zig build docs
+        zig build example

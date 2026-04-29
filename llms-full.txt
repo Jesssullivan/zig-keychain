@@ -2,7 +2,7 @@
 
 > Cross-platform keychain/secrets abstraction in Zig with C FFI -- macOS Keychain (SecItem) and Linux Secret Service (libsecret).
 
-Part of the [Tinyland Zig Libraries](https://libs.tinyland.dev). License: Zlib OR MIT.
+Published documentation: https://transscendsurvival.org/zig-keychain/. License: Zlib OR MIT.
 
 ## Installation
 
@@ -13,7 +13,7 @@ zig fetch --save git+https://github.com/Jesssullivan/zig-keychain.git
 Then in build.zig:
 
 ```zig
-const dep = b.dependency("zig-keychain", .{ .target = target, .optimize = optimize });
+const dep = b.dependency("zig_keychain", .{ .target = target, .optimize = optimize });
 exe.root_module.addImport("zig-keychain", dep.module("zig-keychain"));
 ```
 
@@ -32,6 +32,7 @@ Include `#include "zig_keychain.h"`.
 
 ## Source Structure
 
+- `src/root.zig` - Zig package API root
 - `src/ffi.zig` - C FFI exports (4 functions)
 - `src/keychain.zig` - Platform dispatch
 - `src/keychain_macos.zig` - macOS Security.framework backend (SecItem)
@@ -58,7 +59,7 @@ int zig_keychain_store(
 Store a generic secret in the system keychain/secret store. Uses upsert semantics: an existing item with the same service+account pair is replaced. Returns 0 on success, -1 on failure.
 
 - macOS: SecItemDelete + SecItemAdd (kSecClassGenericPassword)
-- Linux: secret_password_store_binary_sync
+- Linux: libsecret SecretValue binary store
 
 ### Lookup
 
@@ -73,7 +74,7 @@ int zig_keychain_lookup(
 Look up a generic secret from the system keychain/secret store by service name and account name. Copies the secret data into the caller-provided output buffer. Returns the number of bytes written on success, -1 if the item was not found, -2 on error (including buffer too small).
 
 - macOS: SecItemCopyMatching (kSecClassGenericPassword, kSecReturnData)
-- Linux: secret_password_lookup_binary_sync
+- Linux: libsecret SecretValue binary lookup
 
 ### Delete
 
@@ -107,23 +108,23 @@ Search for keychain items whose account name matches the given value. Writes mat
 
 ### keychain.zig (platform dispatch)
 
-- `Result` (union): `.success` ([]const u8), `.not_found`, `.err` ([]const u8)
+- `Result` (union): `.success` ([]const u8 aliasing the caller-provided lookup buffer), `.not_found`, `.err` ([]const u8)
 - `store(service: []const u8, account: []const u8, data: []const u8) !void`: Store a generic secret in the platform keychain.
-- `lookup(service: []const u8, account: []const u8) !Result`: Look up a generic secret from the platform keychain.
+- `lookup(service: []const u8, account: []const u8, out_buf: []u8) !Result`: Look up a generic secret into caller-provided memory.
 - `delete(service: []const u8, account: []const u8) !void`: Delete a generic secret from the platform keychain.
 - `search(account: []const u8, out_buf: [*]u8, out_capacity: usize) !usize`: Search for keychain items matching an account name. Returns match count.
 
 ### keychain_macos.zig (Security.framework)
 
 - `store(service, account, data) !void`: SecItemDelete + SecItemAdd (kSecClassGenericPassword). Upsert semantics.
-- `lookup(service, account) !Result`: SecItemCopyMatching (kSecReturnData). Returns `.success` with data, `.not_found`, or `.err`.
+- `lookup(service, account, out_buf) !Result`: SecItemCopyMatching (kSecReturnData). Copies into caller-provided memory and returns `.success`, `.not_found`, or `.err`.
 - `delete(service, account) !void`: SecItemDelete. Silent success on not-found.
 - `search(account, out_buf, out_capacity) !usize`: SecItemCopyMatching (kSecMatchLimitAll, kSecReturnAttributes). Writes null-separated service names.
 
 ### keychain_linux.zig (libsecret)
 
-- `store(service, account, data) !void`: secret_password_store_binary_sync via C bridge.
-- `lookup(service, account) !Result`: secret_password_lookup_binary_sync via C bridge.
+- `store(service, account, data) !void`: libsecret SecretValue binary store via C bridge.
+- `lookup(service, account, out_buf) !Result`: libsecret SecretValue binary lookup via C bridge.
 - `delete(service, account) !void`: secret_password_clear_sync via C bridge.
 - `search(account, out_buf, out_capacity) !usize`: secret_service_search_sync via C bridge.
 
@@ -134,9 +135,23 @@ zig build                        # static library -> zig-out/lib/
 zig build -Doptimize=ReleaseFast # optimized build
 zig build test                   # unit tests
 zig build docs                   # generate API documentation
+zig build example                # build C usage example
 ```
 
 ## Platform Support
 
 - macOS 13+ (arm64, x86_64): Security.framework
 - Linux (arm64, x86_64): libsecret-1-dev + libglib2.0-dev
+
+## Apple / Swift / Objective-C Interop Scope
+
+zig-keychain replaces only the generic-password keychain call site. The Apple
+analogs are `SecItemAdd`, `SecItemCopyMatching`, `SecItemDelete`, and attribute
+queries over `kSecClassGenericPassword`.
+
+Not yet available: SwiftPM/modulemap packaging, ObjC nullability annotations,
+dedicated Swift wrapper types, ObjC sample app, SecItem/libsecret migration
+tables, access-control policies, biometric prompts, access groups,
+synchronizable/iCloud items, certificates, private keys, or Secure Enclave
+flows. Good starter contributions should focus on those interop and
+documentation gaps before expanding the ABI.

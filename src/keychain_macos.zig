@@ -49,7 +49,7 @@ pub fn store(service: []const u8, account: []const u8, data: []const u8) !void {
 }
 
 /// Look up a generic password via SecItemCopyMatching.
-pub fn lookup(service: []const u8, account: []const u8) !keychain.Result {
+pub fn lookup(service: []const u8, account: []const u8, out_buf: []u8) !keychain.Result {
     const cf_service = cfString(service) orelse return error.CFStringCreateFailed;
     defer c.CFRelease(cf_service);
     const cf_account = cfString(account) orelse return error.CFStringCreateFailed;
@@ -80,8 +80,10 @@ pub fn lookup(service: []const u8, account: []const u8) !keychain.Result {
     defer c.CFRelease(result.?);
     const cf_data: c.CFDataRef = @ptrCast(result.?);
     const len: usize = @intCast(c.CFDataGetLength(cf_data));
+    if (len > out_buf.len) return .{ .err = "output buffer too small" };
     const ptr = c.CFDataGetBytePtr(cf_data);
-    return .{ .success = ptr[0..len] };
+    @memcpy(out_buf[0..len], ptr[0..len]);
+    return .{ .success = out_buf[0..len] };
 }
 
 /// Delete a generic password via SecItemDelete.

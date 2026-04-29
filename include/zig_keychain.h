@@ -23,7 +23,7 @@ extern "C" {
  * @return             0 on success, -1 on failure.
  *
  * macOS: SecItemAdd (kSecClassGenericPassword)
- * Linux: libsecret secret_service_store_sync (org.freedesktop.secrets)
+ * Linux: libsecret SecretValue binary store
  */
 int zig_keychain_store(
     const char *service, size_t service_len,
@@ -43,7 +43,7 @@ int zig_keychain_store(
  * @return             Number of bytes written on success, -1 on not found, -2 on error.
  *
  * macOS: SecItemCopyMatching (kSecClassGenericPassword, kSecReturnData)
- * Linux: libsecret secret_service_lookup_sync
+ * Linux: libsecret SecretValue binary lookup
  */
 int zig_keychain_lookup(
     const char *service, size_t service_len,
@@ -61,7 +61,7 @@ int zig_keychain_lookup(
  * @return             0 on success (including not-found), -1 on error.
  *
  * macOS: SecItemDelete
- * Linux: libsecret secret_service_clear_sync
+ * Linux: libsecret secret_password_clear_sync
  */
 int zig_keychain_delete(
     const char *service, size_t service_len,
@@ -69,7 +69,7 @@ int zig_keychain_delete(
 );
 
 /**
- * Search for keychain items matching an account prefix.
+ * Search for keychain items matching an account name.
  * Writes matching service names as null-separated strings.
  *
  * @param account       Account name to search for.

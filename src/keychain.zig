@@ -1,7 +1,10 @@
 const std = @import("std");
 const builtin = @import("builtin");
 
-/// Platform-independent keychain result.
+/// Platform-independent keychain lookup result.
+///
+/// On success, the returned slice aliases the caller-provided output buffer
+/// passed to `lookup`.
 pub const Result = union(enum) {
     success: []const u8,
     not_found,
@@ -20,11 +23,11 @@ pub fn store(service: []const u8, account: []const u8, data: []const u8) !void {
 }
 
 /// Look up a generic secret from the platform keychain.
-pub fn lookup(service: []const u8, account: []const u8) !Result {
+pub fn lookup(service: []const u8, account: []const u8, out_buf: []u8) !Result {
     if (builtin.os.tag == .macos) {
-        return @import("keychain_macos.zig").lookup(service, account);
+        return @import("keychain_macos.zig").lookup(service, account, out_buf);
     } else if (builtin.os.tag == .linux) {
-        return @import("keychain_linux.zig").lookup(service, account);
+        return @import("keychain_linux.zig").lookup(service, account, out_buf);
     } else {
         return error.UnsupportedPlatform;
     }

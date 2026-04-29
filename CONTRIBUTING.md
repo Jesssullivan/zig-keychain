@@ -11,7 +11,7 @@ zig fetch --save git+https://github.com/Jesssullivan/zig-keychain.git
 Then in your `build.zig`:
 
 ```zig
-const dep = b.dependency("zig-keychain", .{ .target = target, .optimize = optimize });
+const dep = b.dependency("zig_keychain", .{ .target = target, .optimize = optimize });
 exe.root_module.addImport("zig-keychain", dep.module("zig-keychain"));
 ```
 
@@ -32,7 +32,7 @@ Include `#include "zig_keychain.h"`.
 
 ### Prerequisites
 
-- Zig 0.14.1+
+- Zig 0.15.2+
 - **macOS:** Security.framework and CoreFoundation.framework (included with Xcode/CLT)
 - **Linux:** `libsecret-1-dev` and `libglib2.0-dev` (Debian/Ubuntu) or `libsecret-devel` and `glib2-devel` (Fedora/RHEL)
 
@@ -40,15 +40,30 @@ Include `#include "zig_keychain.h"`.
 
 ```bash
 zig build                        # static library
+zig build -Doptimize=ReleaseFast # optimized build
 zig build test                   # unit tests
 zig build docs                   # generate API documentation
+zig build example                # build C example
 ```
+
+## Where to Start
+
+Start with issues labeled [`good first issue`](https://github.com/Jesssullivan/zig-keychain/labels/good%20first%20issue) or [`help wanted`](https://github.com/Jesssullivan/zig-keychain/labels/help%20wanted).
+
+Small, useful first contributions include:
+
+- SwiftPM/modulemap smoke tests
+- Objective-C bridging samples
+- C header nullability annotations
+- Swift wrapper examples
+- Keychain Services and libsecret migration documentation
 
 ### Code Style
 
 - `zig fmt` for formatting
 - All `pub` and `export` functions need `///` doc comments
 - C FFI exports go in `src/ffi.zig`
+- Zig package exports go through `src/root.zig`
 - Platform backends in `src/keychain_<platform>.zig`
 - Platform dispatch in `src/keychain.zig`
 

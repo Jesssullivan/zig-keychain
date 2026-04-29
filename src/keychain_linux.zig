@@ -25,7 +25,7 @@ pub fn store(service: []const u8, account: []const u8, data: []const u8) !void {
     if (result != 0) return error.StoreFailed;
 }
 
-pub fn lookup(service: []const u8, account: []const u8) !keychain.Result {
+pub fn lookup(service: []const u8, account: []const u8, out_buf: []u8) !keychain.Result {
     if (builtin.os.tag != .linux) return error.UnsupportedPlatform;
 
     var svc_buf: [256]u8 = undefined;
@@ -36,11 +36,10 @@ pub fn lookup(service: []const u8, account: []const u8) !keychain.Result {
     @memcpy(acc_buf[0..account.len], account);
     acc_buf[account.len] = 0;
 
-    var buf: [4096]u8 = undefined;
-    const result = bridge.libsecret_bridge_lookup(&svc_buf, &acc_buf, &buf, buf.len);
+    const result = bridge.libsecret_bridge_lookup(&svc_buf, &acc_buf, out_buf.ptr, out_buf.len);
     if (result == -1) return .not_found;
     if (result < 0) return .{ .err = "libsecret lookup failed" };
-    return .{ .success = buf[0..@intCast(result)] };
+    return .{ .success = out_buf[0..@intCast(result)] };
 }
 
 pub fn delete(service: []const u8, account: []const u8) !void {

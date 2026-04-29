@@ -1,5 +1,5 @@
 site_name: zig-keychain
-site_url: https://jesssullivan.github.io/zig-keychain/
+site_url: https://transscendsurvival.org/zig-keychain/
 site_description: Portable system keychain access in Zig — macOS Keychain and Linux Secret Service
 repo_url: https://github.com/Jesssullivan/zig-keychain
 repo_name: Jesssullivan/zig-keychain
@@ -77,6 +77,7 @@ nav:
       - Zig API: api/zig-api.md
   - Guides:
       - Integration: guides/integration.md
+      - Apple Interop: guides/apple-interop.md
       - Building: guides/building.md
   - Source Tree: source-tree.md
   - llms.txt: llms.txt

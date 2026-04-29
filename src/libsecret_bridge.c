@@ -12,23 +12,35 @@ static const SecretSchema cmux_schema = {
     }
 };
 
+static GHashTable *make_attrs(const char *service, const char *account) {
+    GHashTable *attrs = g_hash_table_new(g_str_hash, g_str_equal);
+    g_hash_table_insert(attrs, (gpointer)"service", (gpointer)service);
+    g_hash_table_insert(attrs, (gpointer)"account", (gpointer)account);
+    return attrs;
+}
+
 int libsecret_bridge_store(
     const char *service, const char *account,
     const uint8_t *data, size_t data_len
 ) {
     GError *error = NULL;
-    gboolean ok = secret_password_store_sync(
-        &cmux_schema,
-        SECRET_COLLECTION_DEFAULT,
-        service,  /* label */
-        (const gchar *)data, /* treated as string; for binary use secret_service API */
-        NULL, /* cancellable */
-        &error,
-        "service", service,
-        "account", account,
-        NULL
+    GHashTable *attrs = make_attrs(service, account);
+    SecretValue *value = secret_value_new(
+        (const gchar *)data,
+        (gssize)data_len,
+        "application/octet-stream"
     );
-    (void)data_len;
+    if (!value) {
+        g_hash_table_destroy(attrs);
+        return -1;
+    }
+
+    gboolean ok = secret_password_storev_binary_sync(
+        &cmux_schema, attrs, SECRET_COLLECTION_DEFAULT, service,
+        value, NULL, &error);
+
+    secret_value_unref(value);
+    g_hash_table_destroy(attrs);
     if (!ok || error) {
         if (error) g_error_free(error);
         return -1;
@@ -41,27 +53,25 @@ int libsecret_bridge_lookup(
     uint8_t *out, size_t out_capacity
 ) {
     GError *error = NULL;
-    gchar *result = secret_password_lookup_sync(
-        &cmux_schema,
-        NULL, /* cancellable */
-        &error,
-        "service", service,
-        "account", account,
-        NULL
-    );
+    GHashTable *attrs = make_attrs(service, account);
+    SecretValue *result = secret_password_lookupv_binary_sync(
+        &cmux_schema, attrs, NULL, &error);
+    g_hash_table_destroy(attrs);
+
     if (error) {
         g_error_free(error);
         return -2;
     }
     if (!result) return -1; /* not found */
 
-    size_t len = strlen(result);
+    gsize len = 0;
+    const gchar *secret = secret_value_get(result, &len);
     if (len > out_capacity) {
-        secret_password_free(result);
+        secret_value_unref(result);
         return -2;
     }
-    memcpy(out, result, len);
-    secret_password_free(result);
+    memcpy(out, secret, len);
+    secret_value_unref(result);
     return (int)len;
 }
 

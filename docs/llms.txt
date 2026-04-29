@@ -18,7 +18,7 @@ zig-keychain provides cross-platform access to the system keychain/credential st
 - zig_keychain_store() -- save a generic item (service + account + data)
 - zig_keychain_lookup() -- retrieve an item by service + account
 - zig_keychain_delete() -- remove an item
-- zig_keychain_search() -- find items matching an account prefix
+- zig_keychain_search() -- find items matching an account name
 
 Return values:
 - store: 0 = success, -1 = failure
@@ -28,6 +28,7 @@ Return values:
 
 ## Source Files
 
+- src/root.zig -- Zig package API root
 - src/ffi.zig -- C FFI exports
 - src/keychain.zig -- platform dispatch
 - src/keychain_macos.zig -- macOS Security.framework backend
@@ -37,4 +38,5 @@ Return values:
 ## Links
 
 - Repository: https://github.com/Jesssullivan/zig-keychain
-- Documentation: https://jesssullivan.github.io/zig-keychain/
+- Documentation: https://transscendsurvival.org/zig-keychain/
+- Apple interop: https://transscendsurvival.org/zig-keychain/guides/apple-interop/

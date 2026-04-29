@@ -19,12 +19,14 @@ const keychain_dep = b.dependency("zig_keychain", .{
     .target = target,
     .optimize = optimize,
 });
-exe.linkLibrary(keychain_dep.artifact("zig_keychain"));
+exe.root_module.addImport("zig-keychain", keychain_dep.module("zig-keychain"));
 ```
+
+For C ABI consumers, build this repository as a static library and link `zig-out/lib/libzig-keychain.a`.
 
 ## As a C Static Library
 
-Build and link against `libzig_keychain.a`:
+Build and link against `libzig-keychain.a`:
 
 ```c
 #include "zig_keychain.h"
@@ -60,22 +62,51 @@ int main() {
 
 ## Swift Integration
 
+This repository does not yet ship a SwiftPM package or module map. Use a bridging header that includes `include/zig_keychain.h`, add the header search path, and link the static library.
+
 ```swift
 import Foundation
 
 let service = "myapp"
 let account = "user@example.com"
+let secret = Array("my-token-value".utf8)
 
-// Lookup
+var serviceCString = Array(service.utf8CString)
+var accountCString = Array(account.utf8CString)
+
+secret.withUnsafeBufferPointer { secretBuffer in
+    serviceCString.withUnsafeBufferPointer { serviceBuffer in
+        accountCString.withUnsafeBufferPointer { accountBuffer in
+            _ = zig_keychain_store(
+                serviceBuffer.baseAddress,
+                service.utf8.count,
+                accountBuffer.baseAddress,
+                account.utf8.count,
+                secretBuffer.baseAddress,
+                secret.count
+            )
+        }
+    }
+}
+
 var buf = [UInt8](repeating: 0, count: 1024)
-let len = zig_keychain_lookup(
-    service, service.utf8.count,
-    account, account.utf8.count,
-    &buf, buf.count
-)
-if len > 0 {
-    let value = String(bytes: buf[0..<Int(len)], encoding: .utf8)
-    print("Found: \(value ?? "")")
+serviceCString.withUnsafeBufferPointer { serviceBuffer in
+    accountCString.withUnsafeBufferPointer { accountBuffer in
+        buf.withUnsafeMutableBufferPointer { outBuffer in
+            let len = zig_keychain_lookup(
+                serviceBuffer.baseAddress,
+                service.utf8.count,
+                accountBuffer.baseAddress,
+                account.utf8.count,
+                outBuffer.baseAddress,
+                outBuffer.count
+            )
+            if len > 0 {
+                let value = String(bytes: buf[0..<Int(len)], encoding: .utf8)
+                print("Found: \(value ?? "")")
+            }
+        }
+    }
 }
 ```
 

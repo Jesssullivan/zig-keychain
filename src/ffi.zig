@@ -38,14 +38,11 @@ export fn zig_keychain_lookup(
     const result = keychain.lookup(
         service[0..service_len],
         account[0..account_len],
+        out[0..out_capacity],
     ) catch return -2;
 
     switch (result) {
-        .success => |data| {
-            if (data.len > out_capacity) return -2;
-            @memcpy(out[0..data.len], data);
-            return @intCast(data.len);
-        },
+        .success => |data| return @intCast(data.len),
         .not_found => return -1,
         .err => return -2,
     }
