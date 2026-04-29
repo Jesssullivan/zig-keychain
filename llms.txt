@@ -1,0 +1,42 @@
+# zig-keychain
+
+> Portable system keychain access in Zig with C FFI
+
+## Overview
+
+zig-keychain provides cross-platform access to the system keychain/credential store. On macOS it uses Security.framework (SecItem API), on Linux it uses libsecret (org.freedesktop.secrets D-Bus interface).
+
+## Key Facts
+
+- Language: Zig 0.15.2+
+- Platforms: macOS (Security.framework), Linux (libsecret)
+- License: Zlib OR MIT
+- API: C FFI via zig_keychain.h
+
+## C API Summary
+
+- zig_keychain_store() -- save a generic item (service + account + data)
+- zig_keychain_lookup() -- retrieve an item by service + account
+- zig_keychain_delete() -- remove an item
+- zig_keychain_search() -- find items matching an account name
+
+Return values:
+- store: 0 = success, -1 = failure
+- lookup: bytes written on success, -1 = not found, -2 = error
+- delete: 0 = success (including not-found), -1 = error
+- search: number of matches, -1 = error
+
+## Source Files
+
+- src/root.zig -- Zig package API root
+- src/ffi.zig -- C FFI exports
+- src/keychain.zig -- platform dispatch
+- src/keychain_macos.zig -- macOS Security.framework backend
+- src/keychain_linux.zig -- Linux libsecret backend
+- include/zig_keychain.h -- C header
+
+## Links
+
+- Repository: https://github.com/Jesssullivan/zig-keychain
+- Documentation: https://transscendsurvival.org/zig-keychain/
+- Apple interop: https://transscendsurvival.org/zig-keychain/guides/apple-interop/
